@@ -29,6 +29,8 @@ Entry CreateLogEntry(const std::string &tag, const std::string &msg,
 
 class DLL_API ILogger {
 public:
+  ILogger();
+  ~ILogger();
   virtual void Log(const Entry &entry) = 0;
 };
 
@@ -43,8 +45,8 @@ public:
 
   static Dispatcher &Instance();
 
-  void Register(std::shared_ptr<ILogger> logger);
-  void Unregister(std::shared_ptr<ILogger> logger);
+  void Register(ILogger *logger);
+  void Unregister(ILogger *logger);
 
   void Stop();
 
@@ -70,7 +72,7 @@ private:
   void WorkerThread();
 
 private:
-  std::unordered_set<std::shared_ptr<ILogger>> m_logger_set;
+  std::unordered_set<ILogger *> m_logger_set;
   std::thread m_worker_thread;
   scheduling::TaskQueue m_task_queue;
   std::mutex m_mtx;

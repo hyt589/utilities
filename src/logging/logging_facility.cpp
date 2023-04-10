@@ -11,14 +11,14 @@ namespace logging {
 
 class LoggingTask : public scheduling::ITask {
 public:
-  LoggingTask(const Entry &entry, std::shared_ptr<ILogger> logger)
+  LoggingTask(const Entry &entry, ILogger *logger)
       : m_entry(entry), m_logger_ptr(logger) {}
 
   virtual void Execute() override { m_logger_ptr->Log(m_entry); }
 
 private:
   Entry m_entry;
-  std::shared_ptr<ILogger> m_logger_ptr;
+  ILogger *m_logger_ptr;
 };
 
 std::string TimestampNow() {
@@ -67,13 +67,9 @@ void Dispatcher::Stop() {
   }
 }
 
-void Dispatcher::Register(std::shared_ptr<ILogger> logger) {
-  m_logger_set.insert(logger);
-}
+void Dispatcher::Register(ILogger *logger) { m_logger_set.insert(logger); }
 
-void Dispatcher::Unregister(std::shared_ptr<ILogger> logger) {
-  m_logger_set.erase(logger);
-}
+void Dispatcher::Unregister(ILogger *logger) { m_logger_set.erase(logger); }
 
 void Dispatcher::Trace(const std::string &tag, const std::string &msg,
                        const std::string &filename, const int32_t line) {
@@ -131,6 +127,10 @@ Dispatcher &Dispatcher::Instance() {
   static Dispatcher kInstance;
   return kInstance;
 }
+
+ILogger::ILogger() { Dispatcher::Instance().Register(this); }
+
+ILogger::~ILogger() { Dispatcher::Instance().Unregister(this); }
 
 } // namespace logging
 } // namespace hyt

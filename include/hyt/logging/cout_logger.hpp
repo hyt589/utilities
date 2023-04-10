@@ -10,8 +10,6 @@ namespace logging {
 
 class CoutLogger : public ILogger {
 public:
-  CoutLogger() {}
-
   virtual void Log(const Entry &entry) override {
     std::stringstream ss;
     ss << "[" << entry.tag << "][" << entry.timestamp << "][" << entry.severity
