@@ -1,7 +1,6 @@
-#ifndef HYT_THREAD_POOL
-#define HYT_THREAD_POOL
+#pragma once
 
-#include "hyt/utils/lock_free_queue.tpl.hpp"
+#include "hyt/concurrency/lockfree/queue.tpl.hpp"
 #include <atomic>
 #include <chrono>
 #include <functional>
@@ -15,7 +14,7 @@ namespace hyt {
 
 namespace concurrency {
 
-template <typename T> using Queue = lockfree::Queue<T>;
+namespace lockfree {
 
 class ThreadPool {
 public:
@@ -64,6 +63,8 @@ public:
         while (!m_stopped.load()) {
           if (m_queue.Pop(task)) {
             task();
+          } else {
+            std::this_thread::yield();
           }
         }
       }));
@@ -78,8 +79,7 @@ private:
   std::atomic_bool m_stopped{false};
   const size_t m_concurrency;
 };
+} // namespace lockfree
 
 } // namespace concurrency
 } // namespace hyt
-
-#endif

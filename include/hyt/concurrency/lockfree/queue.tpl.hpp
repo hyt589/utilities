@@ -1,9 +1,10 @@
-#ifndef HYT_LOCK_FREE_QUEUE
-#define HYT_LOCK_FREE_QUEUE
+#pragma once
 
 #include <atomic>
 #include <memory>
 namespace hyt {
+
+namespace concurrency {
 
 namespace lockfree {
 
@@ -94,6 +95,6 @@ private:
 
 } // namespace lockfree
 
-} // namespace hyt
+} // namespace concurrency
 
-#endif
+} // namespace hyt

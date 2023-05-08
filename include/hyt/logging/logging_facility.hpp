@@ -1,7 +1,9 @@
 #pragma once
 
+#include "hyt/concurrency/lockfree/queue.tpl.hpp"
 #include "hyt/defines.hpp"
 #include "hyt/scheduling/task_queue.hpp"
+#include <atomic>
 #include <iostream>
 #include <memory>
 #include <mutex>
@@ -48,6 +50,7 @@ public:
   void Register(ILogger *logger);
   void Unregister(ILogger *logger);
 
+  void Start();
   void Stop();
 
   void Trace(const std::string &tag, const std::string &msg,
@@ -72,10 +75,14 @@ private:
   void WorkerThread();
 
 private:
+  using MessageQueue = hyt::concurrency::lockfree::Queue<Entry>;
+
   std::unordered_set<ILogger *> m_logger_set;
   std::thread m_worker_thread;
-  scheduling::TaskQueue m_task_queue;
+  /* scheduling::TaskQueue m_task_queue; */
+  MessageQueue m_msg_queue;
   std::mutex m_mtx;
+  std::atomic_bool m_running{false};
 };
 
 } // namespace logging

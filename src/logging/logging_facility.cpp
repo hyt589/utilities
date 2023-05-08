@@ -46,22 +46,23 @@ Entry CreateLogEntry(const std::string &tag, const std::string &msg,
   return message;
 }
 
-Dispatcher::Dispatcher()
-    : m_worker_thread(std::thread([&]() { WorkerThread(); })),
-      m_task_queue(500) {}
+Dispatcher::Dispatcher() : m_msg_queue(500) { Start(); }
 
 Dispatcher::~Dispatcher() { Stop(); }
 
-void Dispatcher::Stop() {
-  int attempt = 0;
-  while (!m_task_queue.IsEmpty()) {
-    if (attempt >= 5) {
-      break;
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    attempt++;
+void Dispatcher::Start() {
+  if (m_running.load()) {
+    return;
   }
-  m_task_queue.Stop();
+  m_running.store(true);
+  m_worker_thread = std::thread([this]() { WorkerThread(); });
+}
+
+void Dispatcher::Stop() {
+  while (m_msg_queue.Size() != 0) {
+    std::this_thread::yield();
+  }
+  m_running.store(false);
   if (m_worker_thread.joinable()) {
     m_worker_thread.join();
   }
@@ -99,27 +100,20 @@ void Dispatcher::Fatal(const std::string &tag, const std::string &msg,
 void Dispatcher::Log(const Entry &entry) { Dispatch(entry); }
 
 void Dispatcher::Dispatch(const Entry &entry) {
-  for (auto logger : m_logger_set) {
-    auto task = std::make_shared<LoggingTask>(entry, logger);
-    while (!m_task_queue.PushTask(task)) {
-      // Try again after 5 ms until success
-      std::this_thread::sleep_for(std::chrono::milliseconds(5));
-    }
+  while (!m_msg_queue.Push(entry)) {
+    std::this_thread::yield();
   }
 }
 
 void Dispatcher::WorkerThread() {
-  while (!m_task_queue.IsStopped() || !m_task_queue.IsEmpty()) {
-    auto task = m_task_queue.PopTask();
-    if (!task) {
-      continue;
+  while (m_running.load()) {
+    Entry entry;
+    if (m_msg_queue.Pop(entry)) {
+      for (auto logger : m_logger_set) {
+        logger->Log(entry);
+      }
     }
-    try {
-      task->Execute();
-    } catch (...) {
-      util::Rethrow(
-          [](const std::exception &e) { std::cout << e.what() << std::endl; });
-    }
+    std::this_thread::yield();
   }
 }
 
