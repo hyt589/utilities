@@ -9,7 +9,7 @@ namespace hyt {
 
 namespace logging {
 
-class DLL_API CoutLogger : public ILogger {
+class CoutLogger : public ILogger {
 public:
   virtual void Log(const Entry &entry) override {
     std::stringstream ss;

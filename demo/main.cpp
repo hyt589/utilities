@@ -25,6 +25,7 @@ int main() {
     LOG_D(main) << "hello " << 3 << " " << false;
     LOG_D(main) << "hello " << 4 << " " << false;
     LOG_D(main) << "hello " << 5 << " " << false;
+    LOG_D(main) << FILE_DIR;
 
   } catch (...) {
     Rethrow([](const std::exception e) { std::cout << e.what() << std::endl; });

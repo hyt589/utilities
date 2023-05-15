@@ -2,7 +2,7 @@ set(TGT_NAME demo)
 
 add_executable(demo main.cpp)
 
-target_link_libraries(demo PRIVATE hyt)
+target_link_libraries(demo PRIVATE hyt_common)
 
 if(WIN32)
     add_custom_command(
