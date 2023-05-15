@@ -19,3 +19,8 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE HYT_EXPORT)
 find_package(Threads REQUIRED)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
+
+if(HYT_BUILD_SHARED)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC HYT_BUILD_SHARED)
+endif(HYT_BUILD_SHARED)
+

@@ -13,24 +13,24 @@ using hyt::logging::Dispatcher;
 using hyt::util::Rethrow;
 
 int main() {
+  auto logger = std::make_shared<CoutLogger>();
   try {
 
     ThreadPool thread_pool(1);
 
     thread_pool.Async([]() { std::cout << "async" << std::endl; }).wait();
 
-    auto logger = std::make_shared<CoutLogger>();
     LOG_D(main) << "hello " << 1 << " " << false;
     LOG_D(main) << "hello " << 2 << " " << false;
     LOG_D(main) << "hello " << 3 << " " << false;
     LOG_D(main) << "hello " << 4 << " " << false;
     LOG_D(main) << "hello " << 5 << " " << false;
-#ifdef _MSC_VER
-    // static objects destructors are not called by end of main on msvc
-    Dispatcher::Instance().Stop();
-#endif
 
   } catch (...) {
     Rethrow([](const std::exception e) { std::cout << e.what() << std::endl; });
   }
+#ifdef _MSC_VER
+  // static objects destructors are not called by end of main on msvc
+  Dispatcher::Instance().Stop();
+#endif
 }

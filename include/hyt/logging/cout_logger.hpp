@@ -1,5 +1,6 @@
 #pragma once
 
+#include "hyt/defines.hpp"
 #include "hyt/logging/logging_facility.hpp"
 #include <iostream>
 #include <sstream>
@@ -8,7 +9,7 @@ namespace hyt {
 
 namespace logging {
 
-class CoutLogger : public ILogger {
+class DLL_API CoutLogger : public ILogger {
 public:
   virtual void Log(const Entry &entry) override {
     std::stringstream ss;

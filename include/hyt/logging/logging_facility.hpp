@@ -25,9 +25,9 @@ struct Entry {
   int line;
 };
 
-Entry CreateLogEntry(const std::string &tag, const std::string &msg,
-                     const std::string &severity, const std::string &filename,
-                     const int32_t line);
+Entry DLL_API CreateLogEntry(const std::string &tag, const std::string &msg,
+                             const std::string &severity,
+                             const std::string &filename, const int32_t line);
 
 class DLL_API ILogger {
 public:

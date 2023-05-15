@@ -2,6 +2,7 @@
 #include "hyt/scheduling/task_queue.hpp"
 #include "hyt/utils/utils.inl.hpp"
 #include <chrono>
+#include <exception>
 #include <iostream>
 #include <memory>
 #include <thread>
@@ -110,7 +111,13 @@ void Dispatcher::WorkerThread() {
     Entry entry;
     if (m_msg_queue.Pop(entry)) {
       for (auto logger : m_logger_set) {
-        logger->Log(entry);
+        try {
+          logger->Log(entry);
+        } catch (const std::exception &e) {
+          std::cerr << e.what() << std::endl;
+        } catch (...) {
+          std::cerr << "Unknown error while handling log message" << std::endl;
+        }
       }
     }
     std::this_thread::yield();
